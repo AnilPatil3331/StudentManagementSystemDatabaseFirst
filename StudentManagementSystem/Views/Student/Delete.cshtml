@@ -1,0 +1,58 @@
+﻿@model StudentManagementSystem.Models.Student
+@{
+    ViewBag.Title = "Delete Student";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-danger text-white py-3">
+                    <h4 class="card-title mb-0 fw-bold">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Deletion
+                    </h4>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-person-x text-danger" style="font-size: 4rem;"></i>
+                        <h4 class="mt-2 text-dark">Are you sure?</h4>
+                        <p class="text-muted">You are about to delete the record for <strong>@Model.Name</strong>. This action cannot be undone.</p>
+                    </div>
+
+                    <div class="bg-light rounded p-3 mb-4 text-start border">
+                        <div class="row">
+                            <div class="col-4 fw-bold text-muted text-uppercase small">Full Name</div>
+                            <div class="col-8 text-dark">@Model.Name</div>
+                        </div>
+                        <hr class="my-2">
+                        <div class="row">
+                            <div class="col-4 fw-bold text-muted text-uppercase small">Email Address</div>
+                            <div class="col-8 text-dark">@Model.Email</div>
+                        </div>
+                        <hr class="my-2">
+                        <div class="row">
+                            <div class="col-4 fw-bold text-muted text-uppercase small">Course</div>
+                            <div class="col-8"><span class="badge bg-secondary">@Model.Course</span></div>
+                        </div>
+                    </div>
+
+                    @using (Html.BeginForm("Delete", "Student", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-outline-secondary px-4 py-2" })
+                            <button type="submit" class="btn btn-danger px-5 py-2 shadow-sm fw-bold">
+                                <i class="bi bi-trash3 me-2"></i> Permanently Delete
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+            <p class="text-center text-muted mt-3 small">Return to <a href="@Url.Action("Index")" class="text-decoration-none">Student List</a></p>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

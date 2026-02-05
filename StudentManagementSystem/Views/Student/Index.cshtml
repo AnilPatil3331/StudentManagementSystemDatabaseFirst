@@ -1,0 +1,161 @@
+﻿@model IEnumerable<StudentManagementSystem.Models.Student>
+@using StudentManagementSystem.Models
+
+@{
+    ViewBag.Title = "Student List";
+}
+
+<div class="container mt-4">
+
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+        @if (TempData["Success"] != null)
+        {
+            <div class="toast align-items-center text-bg-success border-0 show" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">@TempData["Success"]</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">Student Management</h2>
+        <div class="d-flex align-items-center gap-2">
+            @using (Html.BeginForm("Import", "Student", FormMethod.Post, new { enctype = "multipart/form-data", id = "importForm", @class = "d-inline" }))
+            {
+                <input type="file" name="file" id="fileInput" accept=".xlsx" class="form-control d-inline-block" style="width: auto;" required />
+                <button type="submit" class="btn btn-primary">Import Excel</button>
+            }
+
+
+            <a href="@Url.Action("Export", "Student", new { search = ViewBag.Search, course = ViewBag.Course, sortOrder = ViewBag.SortOrder })"
+               class="btn btn-success" id="btnExport">
+                <i class="bi bi-file-earmark-excel"></i> Export Excel
+            </a>
+
+            @Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-dark" })
+        </div>
+    </div>
+
+    <div class="card p-3 mb-4 bg-light shadow-sm border-0">
+        @using (Html.BeginForm("Index", "Student", FormMethod.Get, new { @class = "row g-3 align-items-center" }))
+        {
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by name (Full or Partial)..." />
+                </div>
+            </div>
+            <div class="col-md-4">
+                @Html.DropDownList("course", (List<SelectListItem>)ViewBag.Courses, "All Courses", new { @class = "form-select" })
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">Reset</a>
+            </div>
+        }
+    </div>
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-bordered table-hover align-middle mb-0 bg-white">
+            <thead class="table-dark">
+                <tr>
+                    <th>
+                        <a href="@Url.Action("Index", new { sortOrder = ViewBag.NameSortParam, search = ViewBag.Search, course = ViewBag.Course })" class="text-white text-decoration-none">
+                            Name <i class="bi bi-arrow-down-up small"></i>
+                        </a>
+                    </th>
+                    <th>Email</th>
+                    <th>
+                        <a href="@Url.Action("Index", new { sortOrder = ViewBag.DateSortParam, search = ViewBag.Search, course = ViewBag.Course })" class="text-white text-decoration-none">
+                            DOB <i class="bi bi-arrow-down-up small"></i>
+                        </a>
+                    </th>
+                    <th>Course</th>
+                    <th>Mobile</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.Name</td>
+                            <td>@item.Email</td>
+                            <td>@item.DateOfBirth.ToShortDateString()</td>
+                            <td><span class="badge bg-info text-dark">@((Course)item.Course)</span></td>
+                            <td>@item.MobileNumber</td>
+                            <td class="text-center">
+                                @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-warning btn-sm shadow-sm" })
+                                @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { @class = "btn btn-danger btn-sm shadow-sm", onclick = "return confirm('Are you sure you want to delete this record?');" })
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No records found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                @if (ViewBag.CurrentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, search = ViewBag.Search, course = ViewBag.Course, sortOrder = ViewBag.SortOrder })">Previous</a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i, search = ViewBag.Search, course = ViewBag.Course, sortOrder = ViewBag.SortOrder })">@i</a>
+                    </li>
+                }
+
+                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, search = ViewBag.Search, course = ViewBag.Course, sortOrder = ViewBag.SortOrder })">Next</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+        <div class="text-center text-muted small pb-4">
+            Showing Page @ViewBag.CurrentPage of @ViewBag.TotalPages
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+
+            setTimeout(function () {
+                $('.toast').fadeOut('slow');
+            }, 5000);
+
+            $('#btnExport').on('click', function () {
+                alert("Excel file is being generated and exported successfully!");
+            });
+
+            $('#importForm').on('submit', function (e) {
+                var file = $('#fileInput').val();
+                if (!file.toLowerCase().endsWith('.xlsx')) {
+                    alert("Please select only .xlsx files!");
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}
